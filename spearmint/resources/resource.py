@@ -184,6 +184,7 @@
 
 
 import spearmint
+import functools
 
 import importlib
 from operator import add
@@ -202,7 +203,7 @@ def parse_resources_from_config(config):
     # If resources are specified
     else:
         resources = dict()
-        for resource_name, resource_opts in config["resources"].iteritems():
+        for resource_name, resource_opts in config["resources"].items():
             task_names = parse_tasks_in_resource_from_config(config, resource_name)
             resources[resource_name] = resource_factory(resource_name, task_names, resource_opts)
         return resources
@@ -217,7 +218,7 @@ def parse_tasks_in_resource_from_config(config, resource_name):
         return ['main']
     else:
         tasks = list()
-        for task_name, task_config in config["tasks"].iteritems():
+        for task_name, task_config in config["tasks"].items():
             # If the user specified tasks but not specific resources for those tasks,
             # We have to assume the tasks run on all resources...
             if "resources" not in task_config:
@@ -241,10 +242,12 @@ def resource_factory(resource_name, task_names, config):
                     scheduler_class, max_concurrent, max_finished_jobs)
 
 def print_resources_status(resources, jobs):
+    #print (resources)
+    #print (jobs)
     """Print out the status of the resources"""
     if len(resources) == 1:
         sys.stderr.write('Status: %d pending, %d complete.\n\n'
-            % (resources[0].numPending(jobs), resources[0].numComplete(jobs)))
+            % (list(resources)[0].numPending(jobs), list(resources)[0].numComplete(jobs)))
     else:
         sys.stderr.write('\nResources:      ')
         left_indent=16
@@ -305,7 +308,7 @@ class Resource(object):
         jobs = self.filterMyJobs(jobs)
         if jobs:
             pending_jobs = map(lambda x: x['status'] in ['pending', 'new'], jobs)
-            return reduce(add, pending_jobs, 0)
+            return functools.reduce(add, pending_jobs, 0)
         else:
             return 0
 
@@ -313,7 +316,7 @@ class Resource(object):
         jobs = self.filterMyJobs(jobs)
         if jobs:
             completed_jobs = map(lambda x: x['status'] == 'complete', jobs)
-            return reduce(add, completed_jobs, 0)
+            return functools.reduce(add, completed_jobs, 0)
         else:
             return 0
 

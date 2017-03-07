@@ -243,7 +243,7 @@ class Transformer(object):
             for i in inds:
                 counts[i] += 1
 
-        assert np.array(counts.keys()).max() < self.num_dims, 'Maximum index exceeds number of dimensions.'
+        assert np.array(list(counts.keys())).max() < self.num_dims, 'Maximum index exceeds number of dimensions.'
         assert all([count == 1 for count in counts.values()]), 'Each index may only be used once.'
 
     def forward_pass(self, inputs):
@@ -274,7 +274,7 @@ class Transformer(object):
                 self.layer_transformations,
                 self.layer_inds,
                 self.layer_remaining_inds,
-                self.layer_output_dims)[::-1]:
+                self.layer_output_dims):
 
             JV = np.zeros(list(V.shape[:-1])+[len([i for inds in t_inds for i in inds]) + len(remaining_inds)])
             i = 0

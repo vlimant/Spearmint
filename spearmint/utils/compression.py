@@ -184,6 +184,7 @@
 
 import zlib
 import numpy as np
+import base64
 
 COMPRESS_TYPE = 'compressed array'
 
@@ -192,16 +193,21 @@ COMPRESS_TYPE = 'compressed array'
 def compress_array(a):
     return {'ctype'  : COMPRESS_TYPE,
             'shape'  : list(a.shape),
-            'value'  : (zlib.compress(a).encode('base64'))}
+            #'value'  : (zlib.compress(a).encode('base64'))
+            #'value'  : base64.b64encode(zlib.compress(a))
+            'value' : np.ravel(a).tostring()
+    }
 
 # It takes about 0.15 seconds to decompress a 1000x1000 array on a 2011 Macbook air
 def decompress_array(a):
-    return np.fromstring(zlib.decompress(a['value'].decode('base64'))).reshape(a['shape'])
+    return np.fromstring( a['value'] ).reshape(a['shape'])
+    #return np.fromstring( base64.b64decode(zlib.decompress(a['value']))).reshape(a['shape'])
+    #return np.fromstring(zlib.decompress(a['value'].decode('base64'))).reshape(a['shape'])
 
 def compress_nested_container(u_container):
     if isinstance(u_container, dict):
         cdict = {}
-        for key, value in u_container.iteritems():
+        for key, value in u_container.items():
             if isinstance(value, dict) or isinstance(value, list):
                 cdict[key] = compress_nested_container(value)
             else:
@@ -226,14 +232,14 @@ def compress_nested_container(u_container):
 
 def decompress_nested_container(c_container):
     if isinstance(c_container, dict):
-        if c_container.has_key('ctype') and c_container['ctype'] == COMPRESS_TYPE:
+        if 'ctype' in c_container and c_container['ctype'] == COMPRESS_TYPE:
             try:
                 return decompress_array(c_container)
-            except:
-                raise Exception('Container does not contain a valid array.')
+            except Exception as e:
+                raise Exception('Container does not contain a valid array.\n'+str(e)+'\n'+str(c_container))
         else:
             udict = {}
-            for key, value in c_container.iteritems():
+            for key, value in c_container.items():
                 if isinstance(value, dict) or isinstance(value, list):
                     udict[key] = decompress_nested_container(value)
                 else:

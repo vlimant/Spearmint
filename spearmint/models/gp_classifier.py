@@ -117,7 +117,7 @@
 #
 # Input Warping for Bayesian Optimization of Non-stationary Functions
 # Jasper Snoek, Kevin Swersky, Richard Zemel and Ryan Prescott Adams
-# Preprint, arXiv:1402.0929, http://arxiv.org/abs/1402.0929, 2013
+# Preprint,( arXiv:1402.0929, http://arxiv.org/abs/1402.0929, 2013)
 #
 # Bayesian Optimization and Semiparametric Models with Applications to
 # Assistive Technology Jasper Snoek, PhD Thesis, University of
@@ -191,7 +191,7 @@ import scipy.linalg      as spla
 import scipy.optimize    as spo
 import scipy.io          as sio
 import scipy.stats       as sps
-import scipy.weave
+#import scipy.weave
 
 
 from .gp                                     import GP
@@ -208,7 +208,7 @@ try:
     log    = logging.getLogger(module)
 except:
     log = logging.getLogger()
-    print 'Not running from main.'
+    print ('Not running from main.')
 
 class GPClassifier(GP):
     def __init__(self, num_dims, **options):
